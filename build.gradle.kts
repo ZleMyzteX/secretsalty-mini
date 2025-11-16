@@ -153,7 +153,7 @@ jib {
         }
     }
     to {
-        image = "localhost:5000/secretsalty-backend"
+        image = "localhost:5000/secretsalty-minimal-backend"
     }
     container {
         mainClass = "er.codes.secretsalty.SecretSaltyApplicationKt"

@@ -1,0 +1,61 @@
+services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+
+  backend:
+    image: zlemyztex/secret-salty-minimal-backend
+    container_name: backend
+    restart: unless-stopped
+    networks:
+      - app-network
+      - traefik-network
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - secret-salty-database
+
+  frontend:
+    image: zlemyztex/secret-salty-minimal-frontend
+    container_name: frontend
+    restart: unless-stopped
+    networks:
+      - traefik-network
+    depends_on:
+      - backend
+
+  secret-salty-database:
+    image: postgres:17.6
+    container_name: secret-salty-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: secretsalty
+      POSTGRES_PASSWORD: totally-secure-password
+      POSTGRES_DB: secretsalty_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - sv_postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+  traefik-network:
+    driver: bridge
+
+volumes:
+  sv_postgres_data:
+    driver: local

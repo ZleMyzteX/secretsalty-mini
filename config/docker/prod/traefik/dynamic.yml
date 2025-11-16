@@ -1,0 +1,51 @@
+http:
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+  routers:
+    frontend-http:
+      rule: "Host(`secret.saltybots.com`) && PathPrefix(`/`)"
+      service: frontend
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    backend-http:
+      rule: "Host(`secret.saltybots.com`) && PathPrefix(`/api`)"
+      service: backend
+      entryPoints:
+        - web
+      middlewares:
+        - redirect-to-https
+
+    # HTTPS routers
+    frontend:
+      rule: "Host(`secret.saltybots.com`) && PathPrefix(`/`)"
+      service: frontend
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+    backend:
+      rule: "Host(`secret.saltybots.com`) && PathPrefix(`/api`)"
+      service: backend
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://sv-frontend:5173"
+
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://sv-backend:8080"
