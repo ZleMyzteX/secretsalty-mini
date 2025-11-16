@@ -156,7 +156,7 @@ jib {
         image = "localhost:5000/secretsalty-minimal-backend"
     }
     container {
-        mainClass = "er.codes.secretsalty.SecretSaltyApplicationKt"
+        mainClass = "er.codes.secretsaltyminimal.SecretSaltyMinimalApplication"
         ports = listOf("8080")
     }
     setAllowInsecureRegistries(true)
